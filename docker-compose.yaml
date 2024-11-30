@@ -1,0 +1,15 @@
+services:
+  ecommerce-db-auth:
+    image: postgres:16.2-alpine3.19
+    container_name: ecommerce-db-auth
+    ports:
+      - "4848:5432"
+    environment:
+      POSTGRES_USER: "ecommercedbauth"
+      POSTGRES_PASSWORD: "52e91258b667c2b01de5"
+      POSTGRES_DB: "ecommercedbauth"
+    volumes:
+      - database:/var/lib/postgresql/data
+volumes:
+  database:
+    driver: local
