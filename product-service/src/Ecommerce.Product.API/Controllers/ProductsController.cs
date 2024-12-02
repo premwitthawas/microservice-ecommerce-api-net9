@@ -2,7 +2,6 @@ using Ecommerce.Product.Core.DTOs;
 using Ecommerce.Product.Core.ServiceContacts;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Product.API.Controllers
@@ -11,14 +10,16 @@ namespace Ecommerce.Product.API.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
+        private readonly ILogger<ProductsController> _logger;
         private readonly IProductsService _productsService;
         private readonly IValidator<CreateProductRequest> _createProductRequestValidator;
         private readonly IValidator<UpdateProductRequest> _updateProductRequestValidator;
-        public ProductsController(IProductsService productsService, IValidator<CreateProductRequest> createProductRequestValidator, IValidator<UpdateProductRequest> updateProductRequestValidator)
+        public ProductsController(IProductsService productsService, IValidator<CreateProductRequest> createProductRequestValidator, IValidator<UpdateProductRequest> updateProductRequestValidator, ILogger<ProductsController> logger)
         {
             _productsService = productsService;
             _createProductRequestValidator = createProductRequestValidator;
             _updateProductRequestValidator = updateProductRequestValidator;
+            _logger = logger;
         }
         [HttpGet]
         public async Task<IActionResult> GetProductsAsync()
@@ -36,7 +37,7 @@ namespace Ecommerce.Product.API.Controllers
             }
             return Ok(product);
         }
-        [HttpGet("/search/{searchText:string}")]
+        [HttpGet("search/{searchText}")]
         public async Task<IActionResult> GetProductBySearchTextAsync(string searchText)
         {
             List<ProductsResponse?> serachProductsByName = await _productsService.GetProductsByConditionAsync(x =>
@@ -63,9 +64,9 @@ namespace Ecommerce.Product.API.Controllers
             ProductsResponse? product = await _productsService.AddProductAsync(createProductRequest);
             if (product == null)
             {
-                return NotFound();
+                return Problem("Error while creating product");
             }
-            return CreatedAtAction(nameof(GetProductByIdConditionAsync), new { productId = product.ProductID }, product);
+            return Created($"/api/products/search/{product.ProductID}", product);
         }
         [HttpPut]
         public async Task<IActionResult> UpdateProductASync(UpdateProductRequest updateProductRequest)
@@ -83,9 +84,20 @@ namespace Ecommerce.Product.API.Controllers
             ProductsResponse? product = await _productsService.UpdateProductASync(updateProductRequest);
             if (product == null)
             {
-                return NotFound();
+                return Problem("Error while updating product");
             }
             return Ok(product);
+        }
+        [HttpDelete("{productId:guid}")]
+        public async Task<IActionResult> DeleteProductAsync(Guid productId)
+        {
+            _logger.LogInformation("Delete product with id {productId}", productId);
+            bool isDeleted = await _productsService.DeleteProductASync(productId);
+            if (!isDeleted)
+            {
+                return Problem("Error while deleting product");
+            }
+            return NoContent();
         }
     }
 }

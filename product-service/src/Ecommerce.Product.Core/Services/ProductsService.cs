@@ -6,6 +6,7 @@ using Ecommerce.Product.Infrastructure.Entities;
 using Ecommerce.Product.Infrastructure.RepositoryContacts;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.Extensions.Logging;
 
 namespace Ecommerce.Product.Core.Services;
 
@@ -15,12 +16,14 @@ public class ProductsService : IProductsService
     private readonly IValidator<UpdateProductRequest> _updateProductRequestValidator;
     private readonly IMapper _mapper;
     private readonly IProductsRepository _productsRepository;
-    public ProductsService(IMapper mapper, IProductsRepository productsRepository, IValidator<CreateProductRequest> createProductRequestValidator, IValidator<UpdateProductRequest> updateProductRequestValidator)
+    private readonly ILogger<ProductsService> _logger;
+    public ProductsService(IMapper mapper, IProductsRepository productsRepository, IValidator<CreateProductRequest> createProductRequestValidator, IValidator<UpdateProductRequest> updateProductRequestValidator, ILogger<ProductsService> logger)
     {
         _mapper = mapper;
         _productsRepository = productsRepository;
         _createProductRequestValidator = createProductRequestValidator;
         _updateProductRequestValidator = updateProductRequestValidator;
+        _logger = logger;
     }
     public async Task<ProductsResponse?> AddProductAsync(CreateProductRequest createProductRequest)
     {
@@ -46,10 +49,6 @@ public class ProductsService : IProductsService
 
     public async Task<bool> DeleteProductASync(Guid productId)
     {
-        if (!productId.Equals(Guid.Empty))
-        {
-            throw new ArgumentException("Invalid Product Id");
-        }
         Products? existingProduct = await _productsRepository.GetProductByConditionAsync(x => x.ProductID == productId);
         if (existingProduct == null)
         {
@@ -97,11 +96,13 @@ public class ProductsService : IProductsService
             throw new ArgumentException(errors);
         }
         Products? existingProduct = await _productsRepository.GetProductByConditionAsync(x => x.ProductID == updateProductRequest.ProductID);
+        
         if (existingProduct == null)
         {
             throw new ArgumentException("Product not found");
         }
-        Products products = _mapper.Map<Products>(existingProduct);
+        Products products = _mapper.Map<Products>(updateProductRequest);
+        _logger.LogInformation($"Product found {products.ProductName}");
         Products? updatedProduct = await _productsRepository.UpdateProductAsync(products);
         if (updatedProduct == null)
         {

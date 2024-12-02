@@ -15,7 +15,7 @@ public class ProductsRepository : IProductsRepository
     }
     public async Task<Products?> AddProductAsync(Products product)
     {
-        _dbContext.Add(product);
+        _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
         return product;
     }
@@ -27,7 +27,7 @@ public class ProductsRepository : IProductsRepository
         {
             return false;
         }
-        _dbContext.Remove(productExsiting);
+        _dbContext.Products.Remove(productExsiting);
         int rowAffectedCount = await _dbContext.SaveChangesAsync();
         return rowAffectedCount > 0;
     }
@@ -49,12 +49,11 @@ public class ProductsRepository : IProductsRepository
 
     public async Task<Products?> UpdateProductAsync(Products product)
     {
-        Products? productsExsiting = _dbContext.Products.FirstOrDefault(x => x.ProductID == product.ProductID);
+        Products? productsExsiting = await _dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == product.ProductID);
         if (productsExsiting == null)
         {
             return null;
         }
-
         productsExsiting.ProductName = product.ProductName ?? productsExsiting.ProductName;
         productsExsiting.Category = product.Category ?? productsExsiting.Category;
         productsExsiting.UnitPrice = product.UnitPrice ?? productsExsiting.UnitPrice;
