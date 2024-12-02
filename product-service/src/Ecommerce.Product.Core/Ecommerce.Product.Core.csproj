@@ -10,5 +10,8 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ecommerce.Product.Infrastructure\Ecommerce.Product.Infrastructure.csproj" />
+  </ItemGroup>
 
 </Project>

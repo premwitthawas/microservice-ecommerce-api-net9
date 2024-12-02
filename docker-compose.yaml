@@ -9,7 +9,20 @@ services:
       POSTGRES_PASSWORD: "52e91258b667c2b01de5"
       POSTGRES_DB: "ecommercedbauth"
     volumes:
-      - database:/var/lib/postgresql/data
+      - pg-database:/var/lib/postgresql/data
+  ecommerce-db-product:
+    image: mysql:latest
+    container_name: ecommerce-db-product
+    ports:
+      - "4849:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "ec31d315916485460cadb7fc58c90118795ddeccb75147e5d38d4dbcde433c1c"
+      MYSQL_DATABASE: "ecommercedbproduct"
+    volumes:
+      - mysql-database:/var/lib/mysql
 volumes:
-  database:
+  pg-database:
     driver: local
+  mysql-database:
+    driver: local
+  
