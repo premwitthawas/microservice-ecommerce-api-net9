@@ -32,4 +32,6 @@ app.UseRouting();
 app.UseAuthorization();
 app.UseAuthentication();
 app.MapControllers();
+app.MapGet("/", () => new { Message = "API RUNNING" });
+
 app.Run();

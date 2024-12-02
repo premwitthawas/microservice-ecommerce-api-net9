@@ -25,7 +25,6 @@ public class ExceptionHandlingMiddleware
                 _logger.LogError($"{ex.InnerException.GetType().ToString()} : {ex.InnerException.Message}");
             }
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
             await context.Response.WriteAsJsonAsync(new
             {
                 Message = ex.Message,

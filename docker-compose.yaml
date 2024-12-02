@@ -20,6 +20,24 @@ services:
       MYSQL_DATABASE: "ecommercedbproduct"
     volumes:
       - mysql-database:/var/lib/mysql
+  ecommerce-users-api-service:
+    image: pzwitthawasdev/ecommerce-users-api-service:latest
+    container_name: ecommerce-users-api-service
+    ports:
+      - "4000:8080"
+    environment:
+      ConnectionStrings__PostgresSQLConnection: "Host=ecommerce-db-auth;Port=5432;Database=ecommercedbauth;Username=ecommercedbauth;Password=52e91258b667c2b01de5"
+    depends_on:
+      - ecommerce-db-auth
+  ecommerce-product-api-service:
+    image: pzwitthawasdev/ecommerce-products-api-service:latest
+    container_name: ecommerce-product-api-service
+    ports:
+      - "4001:8080"
+    environment:
+      ConnectionStrings__MySqlConnection: "server=ecommerce-db-product;port=3306;database=ecommercedbproduct;user=root;password=ec31d315916485460cadb7fc58c90118795ddeccb75147e5d38d4dbcde433c1c"
+    depends_on:
+      - ecommerce-db-product
 volumes:
   pg-database:
     driver: local

@@ -1,3 +1,4 @@
+using System.Net;
 namespace Ecommerce.Product.API.Middlewares;
 
 public class MiddlewareHandingException
@@ -26,6 +27,12 @@ public class MiddlewareHandingException
             {
                 _logger.LogError($"{ex.GetType().ToString()} - {ex.Message}");
             }
+            httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            await httpContext.Response.WriteAsJsonAsync(new
+            {
+                Message = ex.Message,
+                Type = ex.GetType().ToString()
+            });
         }
     }
 }
