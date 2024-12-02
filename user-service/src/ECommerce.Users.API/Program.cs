@@ -23,6 +23,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.MapGet("/", () => new { Message = "API RUNNING" });
 app.UseExceptionHandlingMiddleware();
 app.UseRouting();
 app.UseAuthorization();
